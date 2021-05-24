@@ -186,10 +186,11 @@ main(int argc, char **argv)
 
 	if (strcmp(cmd_name, "gst_loopback") == 0)
 		pipe_proc = "decodebin ! autovideoconvert ! "
-			"video/x-raw,format=I420 ! identity drop-allocation=true !"
-			"v4l2sink device=/dev/video1 sync=false";
+			"video/x-raw,format=I420 ! tee ! "
+			"v4l2sink device=/dev/video1 qos=false sync=false";
 	else
 		pipe_proc = " decodebin ! autovideosink sync=false";
+		/* pipe_proc = " rtph264pay name=pay0 pt=96 ! udpsink host=127.0.0.1 port=5000 sync=false ";*/
 
 	if (!gst_src_init(&argc, &argv, pipe_proc))
 		return -1;
@@ -245,7 +246,7 @@ main(int argc, char **argv)
 	pthread_create(&thr, NULL, keywait, &src);
 	
 	res = thetauvc_get_stream_ctrl_format_size(devh,
-			THETAUVC_MODE_UHD_2997, &ctrl);
+			THETAUVC_MODE_FHD_2997, &ctrl);
 	src.dwFrameInterval = ctrl.dwFrameInterval;
 	src.dwClockFrequency = ctrl.dwClockFrequency;
 
